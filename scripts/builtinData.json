@@ -1,0 +1,31 @@
+[
+  {
+    "id": "person-liuyun",
+    "name": "柳云玄",
+    "type": "person",
+    "summary": "玄鉴仙族核心人物之一",
+    "description": "以玄鉴推演闻名，后创立云台法会。",
+    "children": [
+      {
+        "id": "shentong-xuanjian",
+        "name": "玄鉴术",
+        "type": "shentong",
+        "category": "shentong",
+        "description": "可观因果流转。"
+      }
+    ]
+  },
+  {
+    "id": "org-yuntai",
+    "name": "云台法会",
+    "type": "org",
+    "description": "主张诸脉共证。"
+  },
+  {
+    "id": "shentong-xuanjian",
+    "name": "玄鉴术",
+    "type": "shentong",
+    "category": "shen_tong",
+    "description": "重复平铺记录用于测试去重。"
+  }
+]

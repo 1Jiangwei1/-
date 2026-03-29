@@ -1,0 +1,237 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+  MODERATOR
+  USER
+}
+
+enum LorePermissionLevel {
+  VIEW
+  SUGGEST
+  EDIT
+  REVIEW
+  ADMIN
+}
+
+enum LorePermissionScope {
+  GLOBAL
+  CATEGORY
+  ENTRY
+}
+
+enum ChangeRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum LoreRelationType {
+  CHILD
+  RELATED
+  REFERENCES
+}
+
+model User {
+  id             String                 @id @default(cuid())
+  email          String                 @unique
+  username       String                 @unique
+  passwordHash   String
+  role           UserRole               @default(USER)
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  posts          Post[]
+  comments       Comment[]
+  favorites      Favorite[]
+  notifications  Notification[]
+  following      UserFollow[]           @relation("Following")
+  followers      UserFollow[]           @relation("Followers")
+  editorPerms    LoreEditorPermission[]
+  changeRequests LoreChangeRequest[]    @relation("Requester")
+  reviews        LoreChangeRequest[]    @relation("Reviewer")
+}
+
+model LoreEntry {
+  id             String                 @id @default(cuid())
+  slug           String                 @unique
+  title          String
+  summary        String?
+  content        String?
+  category       String
+  externalId     String?
+  rawJson        Json?
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+  metas          LoreMeta[]
+  relationsFrom  LoreRelation[]         @relation("from")
+  relationsTo    LoreRelation[]         @relation("to")
+  versions       LoreEntryVersion[]
+  changeRequests LoreChangeRequest[]
+  favorites      Favorite[]
+  rankItems      RankItem[]
+}
+
+model LoreMeta {
+  id        String    @id @default(cuid())
+  entryId   String
+  key       String
+  value     String
+  entry     LoreEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@index([entryId, key])
+}
+
+model LoreRelation {
+  id          String           @id @default(cuid())
+  fromEntryId String
+  toEntryId   String
+  type        LoreRelationType @default(CHILD)
+  fromEntry   LoreEntry        @relation("from", fields: [fromEntryId], references: [id], onDelete: Cascade)
+  toEntry     LoreEntry        @relation("to", fields: [toEntryId], references: [id], onDelete: Cascade)
+
+  @@unique([fromEntryId, toEntryId, type])
+}
+
+model RawLoreRecord {
+  id         String   @id @default(cuid())
+  externalId String?
+  source     String   @default("builtin")
+  payload    Json
+  importedAt DateTime @default(now())
+
+  @@index([externalId])
+}
+
+model LoreEditorPermission {
+  id          String              @id @default(cuid())
+  userId      String
+  scopeType   LorePermissionScope
+  scopeValue  String?
+  level       LorePermissionLevel
+  createdAt   DateTime            @default(now())
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, scopeType])
+}
+
+model LoreEntryVersion {
+  id          String   @id @default(cuid())
+  entryId     String
+  snapshot    Json
+  note        String?
+  createdById String?
+  createdAt   DateTime @default(now())
+  entry       LoreEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@index([entryId, createdAt])
+}
+
+model LoreChangeRequest {
+  id           String              @id @default(cuid())
+  entryId      String
+  requesterId  String
+  reviewerId   String?
+  patch        Json
+  status       ChangeRequestStatus @default(PENDING)
+  reviewNote   String?
+  createdAt    DateTime            @default(now())
+  reviewedAt   DateTime?
+  entry        LoreEntry           @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  requester    User                @relation("Requester", fields: [requesterId], references: [id], onDelete: Cascade)
+  reviewer     User?               @relation("Reviewer", fields: [reviewerId], references: [id])
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String?
+  content   String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Favorite {
+  id        String    @id @default(cuid())
+  userId    String
+  loreEntryId String?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  loreEntry LoreEntry? @relation(fields: [loreEntryId], references: [id], onDelete: Cascade)
+}
+
+model RankBoard {
+  id        String      @id @default(cuid())
+  title     String
+  createdAt DateTime    @default(now())
+  items     RankItem[]
+}
+
+model RankItem {
+  id          String      @id @default(cuid())
+  boardId     String
+  loreEntryId String
+  score       Int         @default(0)
+  board       RankBoard   @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  loreEntry   LoreEntry   @relation(fields: [loreEntryId], references: [id], onDelete: Cascade)
+  votes       RankVote[]
+  comments    RankComment[]
+}
+
+model RankVote {
+  id        String   @id @default(cuid())
+  rankItemId String
+  userId    String
+  value     Int      @default(1)
+  rankItem  RankItem @relation(fields: [rankItemId], references: [id], onDelete: Cascade)
+
+  @@unique([rankItemId, userId])
+}
+
+model RankComment {
+  id        String   @id @default(cuid())
+  rankItemId String
+  userId    String
+  content   String
+  createdAt DateTime @default(now())
+  rankItem  RankItem @relation(fields: [rankItemId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  body      String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserFollow {
+  id           String   @id @default(cuid())
+  followerId   String
+  followingId  String
+  createdAt    DateTime @default(now())
+  follower     User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following    User     @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+}
