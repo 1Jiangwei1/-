@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 import { LorePermissionScope } from "@prisma/client";
 
 const requiredText = z
@@ -52,7 +52,9 @@ export const loreReviewDecisionSchema = z.object({
 export const permissionSchema = z
   .object({
     userId: z.string().trim().min(1, "用户不能为空"),
-    level: z.enum(["EDIT", "REVIEW", "ADMIN"]),
+    level: z
+      .enum(["EDIT", "REVIEW", "ADMIN"])
+      .transform((level) => (level === "REVIEW" ? "EDIT" : level)),
     scopeType: z.nativeEnum(LorePermissionScope),
     scopeValue: z.string().trim().optional().nullable(),
   })

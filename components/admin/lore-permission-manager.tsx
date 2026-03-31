@@ -29,14 +29,14 @@ type Notice =
   | { type: "error"; text: string }
   | null;
 
-const LEVEL_OPTIONS = ["EDIT", "REVIEW", "ADMIN"];
+const LEVEL_OPTIONS = ["EDIT", "ADMIN"];
 const SCOPE_OPTIONS = ["GLOBAL", "CATEGORY", "ENTRY"];
 
 const LEVEL_LABELS: Record<string, string> = {
   VIEW: "查看：只能查看词条",
   SUGGEST: "建议：可提交修改建议，不能直接改",
-  EDIT: "编辑：可直接修改词条",
-  REVIEW: "审核：可审核修改建议",
+  EDIT: "编辑：可直接修改词条，也可审核修改建议",
+  REVIEW: "编辑：可直接修改词条，也可审核修改建议",
   ADMIN: "管理：可编辑、审核，并分配权限",
 };
 
@@ -74,11 +74,28 @@ export default function LorePermissionManager({
   );
   const router = useRouter();
   const [userId, setUserId] = useState(users[0]?.id ?? "");
+  const [userKeyword, setUserKeyword] = useState("");
   const [level, setLevel] = useState("EDIT");
   const [scopeType, setScopeType] = useState("GLOBAL");
   const [scopeValue, setScopeValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
+
+  const normalizedKeyword = userKeyword.trim().toLowerCase();
+  const filteredUsers = users.filter((user) => {
+    if (!normalizedKeyword) {
+      return true;
+    }
+
+    return (
+      user.username.toLowerCase().includes(normalizedKeyword) ||
+      user.email.toLowerCase().includes(normalizedKeyword)
+    );
+  });
+  const selectableUsers =
+    filteredUsers.length > 0
+      ? filteredUsers
+      : users.filter((user) => user.id === userId);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -149,17 +166,26 @@ export default function LorePermissionManager({
       <form onSubmit={handleSubmit} className="grid gap-4 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 md:grid-cols-2">
         <div className="space-y-2">
           <label className="text-sm font-medium text-zinc-200">授权用户</label>
+          <input
+            value={userKeyword}
+            onChange={(event) => setUserKeyword(event.target.value)}
+            placeholder="搜索用户名或邮箱"
+            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-zinc-600"
+          />
           <select
             value={userId}
             onChange={(event) => setUserId(event.target.value)}
             className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-zinc-600"
           >
-            {users.map((user) => (
+            {selectableUsers.map((user) => (
               <option key={user.id} value={user.id}>
                 {user.username} ({user.role})
               </option>
             ))}
           </select>
+          {filteredUsers.length === 0 ? (
+            <p className="text-xs text-zinc-500">未找到匹配用户</p>
+          ) : null}
         </div>
 
         <div className="space-y-2">
@@ -220,7 +246,7 @@ export default function LorePermissionManager({
         </div>
       </form>
 
-        <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60">
+      <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60">
         {visibleItems.length === 0 ? (
           <div className="px-6 py-12 text-center text-sm text-zinc-400">
             暂无已分配权限

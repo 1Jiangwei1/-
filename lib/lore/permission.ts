@@ -13,8 +13,8 @@ const permissionCapabilities: Record<
 > = {
   VIEW: new Set(["VIEW"]),
   SUGGEST: new Set(["VIEW", "SUGGEST"]),
-  EDIT: new Set(["VIEW", "SUGGEST", "EDIT"]),
-  REVIEW: new Set(["VIEW", "SUGGEST", "REVIEW"]),
+  EDIT: new Set(["VIEW", "SUGGEST", "EDIT", "REVIEW"]),
+  REVIEW: new Set(["VIEW", "SUGGEST", "EDIT", "REVIEW"]),
   ADMIN: new Set(["VIEW", "SUGGEST", "EDIT", "REVIEW", "ADMIN"]),
 };
 
