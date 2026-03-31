@@ -1,19 +1,105 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   color-scheme: dark;
+  --bg-main: #0e1515;
+  --bg-panel: rgba(23, 30, 29, 0.86);
+  --bg-card: rgba(19, 25, 24, 0.92);
+  --bg-float: rgba(28, 35, 34, 0.94);
+  --line-soft: rgba(118, 137, 129, 0.16);
+  --line-strong: rgba(146, 164, 156, 0.26);
+  --gold: #b19157;
+  --gold-soft: #dcc58f;
+  --jade: #7f9e95;
+  --jade-soft: #adc0ba;
+  --text-main: #f1eee3;
+  --text-soft: #c2c7bd;
+  --text-faint: #98a298;
+}
+
+html {
+  background:
+    radial-gradient(circle at top, rgba(177, 145, 87, 0.1), transparent 24%),
+    radial-gradient(circle at 18% 16%, rgba(126, 165, 154, 0.08), transparent 26%),
+    linear-gradient(180deg, #161d1c 0%, #101717 55%, #0d1313 100%);
+  min-height: 100%;
 }
 
 body {
-  @apply bg-bg text-stone-100 antialiased;
+  min-height: 100vh;
+  background: transparent;
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-input, textarea, select {
-  @apply bg-card border border-border rounded-md px-3 py-2 text-sm;
+input,
+textarea,
+select {
+  @apply rounded-2xl border px-4 py-3 text-sm outline-none transition;
+  background: rgba(22, 29, 28, 0.92);
+  border-color: rgba(118, 137, 129, 0.18);
+  color: var(--text-main);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.015);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #879187;
 }
 
 .container-mobile {
-  @apply mx-auto w-full max-w-3xl px-4;
+  @apply mx-auto w-full max-w-6xl px-4 sm:px-5;
+}
+
+.page-shell {
+  @apply pb-10 pt-6 sm:pt-8;
+}
+
+.surface-panel {
+  background: linear-gradient(180deg, rgba(27, 33, 32, 0.9) 0%, rgba(20, 26, 25, 0.94) 100%);
+  border: 1px solid var(--line-soft);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+}
+
+.surface-card {
+  background: linear-gradient(180deg, rgba(24, 30, 29, 0.94) 0%, rgba(17, 22, 21, 0.98) 100%);
+  border: 1px solid rgba(118, 137, 129, 0.14);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.12);
+}
+
+.accent-chip {
+  border: 1px solid rgba(177, 145, 87, 0.22);
+  background: rgba(177, 145, 87, 0.09);
+  color: var(--gold-soft);
+}
+
+.soft-chip {
+  border: 1px solid rgba(126, 165, 154, 0.16);
+  background: rgba(126, 165, 154, 0.07);
+  color: var(--jade-soft);
+}
+
+.section-kicker {
+  color: var(--gold-soft);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.text-muted {
+  color: var(--text-soft);
+}
+
+.border-border {
+  border-color: var(--line-soft);
+}
+
+.bg-card {
+  background: var(--bg-card);
+}
+
+.text-accent {
+  color: var(--gold-soft);
 }

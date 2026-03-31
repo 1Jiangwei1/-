@@ -46,6 +46,7 @@ model User {
   username       String                 @unique
   passwordHash   String
   role           UserRole               @default(USER)
+  lastActiveAt   DateTime?
   createdAt      DateTime               @default(now())
   updatedAt      DateTime               @updatedAt
   posts          Post[]
@@ -157,6 +158,7 @@ model Post {
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments  Comment[]
+  favorites Favorite[]
 }
 
 model Comment {
@@ -170,12 +172,20 @@ model Comment {
 }
 
 model Favorite {
-  id        String    @id @default(cuid())
-  userId    String
+  id          String    @id @default(cuid())
+  userId      String
   loreEntryId String?
-  createdAt DateTime  @default(now())
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  loreEntry LoreEntry? @relation(fields: [loreEntryId], references: [id], onDelete: Cascade)
+  postId      String?
+  rankItemId  String?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  loreEntry   LoreEntry? @relation(fields: [loreEntryId], references: [id], onDelete: Cascade)
+  post        Post?     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  rankItem    RankItem? @relation(fields: [rankItemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, loreEntryId])
+  @@unique([userId, postId])
+  @@unique([userId, rankItemId])
 }
 
 model RankBoard {
@@ -194,6 +204,7 @@ model RankItem {
   loreEntry   LoreEntry   @relation(fields: [loreEntryId], references: [id], onDelete: Cascade)
   votes       RankVote[]
   comments    RankComment[]
+  favorites   Favorite[]
 }
 
 model RankVote {
