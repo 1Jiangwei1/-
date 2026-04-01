@@ -6,6 +6,36 @@ const CSRF_EXEMPT_PATHS = new Set([
   "/api/auth/register",
 ]);
 
+function getAllowedOrigins(request: NextRequest) {
+  const origins = new Set<string>([request.nextUrl.origin]);
+
+  const host =
+    request.headers.get("x-forwarded-host") ??
+    request.headers.get("host");
+
+  const proto =
+    request.headers.get("x-forwarded-proto") ??
+    request.nextUrl.protocol.replace(":", "");
+
+  if (host) {
+    origins.add(`${proto}://${host}`);
+  }
+
+  return origins;
+}
+
+function matchesAllowedOrigin(value: string | null, allowedOrigins: Set<string>) {
+  if (!value) {
+    return false;
+  }
+
+  try {
+    return allowedOrigins.has(new URL(value).origin);
+  } catch {
+    return false;
+  }
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method.toUpperCase();
@@ -17,17 +47,11 @@ export function middleware(request: NextRequest) {
   ) {
     const origin = request.headers.get("origin");
     const referer = request.headers.get("referer");
-    const requestOrigin = request.nextUrl.origin;
+    const allowedOrigins = getAllowedOrigins(request);
 
     const sameOrigin =
-      (origin && origin === requestOrigin) ||
-      (!!referer && (() => {
-        try {
-          return new URL(referer).origin === requestOrigin;
-        } catch {
-          return false;
-        }
-      })());
+      matchesAllowedOrigin(origin, allowedOrigins) ||
+      matchesAllowedOrigin(referer, allowedOrigins);
 
     if (!sameOrigin) {
       return NextResponse.json(
