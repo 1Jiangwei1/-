@@ -56,6 +56,8 @@ model User {
   following      UserFollow[]           @relation("Following")
   followers      UserFollow[]           @relation("Followers")
   editorPerms    LoreEditorPermission[]
+  briefingEditorPerms HomeBriefingEditorPermission[]
+  updatedBriefings HomeBriefing[]       @relation("HomeBriefingUpdater")
   changeRequests LoreChangeRequest[]    @relation("Requester")
   reviews        LoreChangeRequest[]    @relation("Reviewer")
 }
@@ -198,10 +200,12 @@ model RankBoard {
 model RankItem {
   id          String      @id @default(cuid())
   boardId     String
-  loreEntryId String
+  loreEntryId String?
+  title       String?
+  description String?
   score       Int         @default(0)
   board       RankBoard   @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  loreEntry   LoreEntry   @relation(fields: [loreEntryId], references: [id], onDelete: Cascade)
+  loreEntry   LoreEntry?  @relation(fields: [loreEntryId], references: [id], onDelete: Cascade)
   votes       RankVote[]
   comments    RankComment[]
   favorites   Favorite[]
@@ -232,6 +236,23 @@ model Notification {
   title     String
   body      String?
   isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model HomeBriefing {
+  slot        String   @id
+  title       String
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+  updatedBy   User?    @relation("HomeBriefingUpdater", fields: [updatedById], references: [id])
+}
+
+model HomeBriefingEditorPermission {
+  id        String   @id @default(cuid())
+  userId    String   @unique
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

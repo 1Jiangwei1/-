@@ -1,7 +1,6 @@
 ﻿import Link from "next/link";
 
 import DeletePostButton from "@/components/community/delete-post-button";
-import FavoriteToggleButton from "@/components/user/favorite-toggle-button";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { COMMUNITY_CATEGORIES, decodeCommunityPostContent } from "@/lib/community/post-content";
 import { prisma } from "@/lib/prisma";
@@ -48,18 +47,13 @@ export default async function CommunityPage({ searchParams }: { searchParams?: R
   const { category, sort } = await resolveSearchParams(searchParams);
   const currentUser = await getCurrentUser();
 
-  const [posts, favorites] = await Promise.all([
-    prisma.post.findMany({
-      include: {
-        user: { select: { id: true, username: true, email: true } },
-        _count: { select: { comments: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-    currentUser ? prisma.favorite.findMany({ where: { userId: currentUser.id, postId: { not: null } }, select: { postId: true } }) : Promise.resolve([]),
-  ]);
-
-  const favoriteIds = new Set(favorites.map((item) => item.postId).filter(Boolean));
+  const posts = await prisma.post.findMany({
+    include: {
+      user: { select: { id: true, username: true, email: true } },
+      _count: { select: { comments: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
   const normalizedPosts = posts
     .map((post) => {
@@ -151,7 +145,6 @@ export default async function CommunityPage({ searchParams }: { searchParams?: R
                     </div>
                   </Link>
                   <div className="flex flex-col items-end gap-2">
-                    <FavoriteToggleButton type="post" targetId={post.id} initialFavorited={favoriteIds.has(post.id)} compact />
                     {currentUser &&
                     (currentUser.role === "OWNER" ||
                       currentUser.role === "ADMIN" ||

@@ -1,7 +1,5 @@
 ﻿import Link from "next/link";
 
-import FavoriteToggleButton from "@/components/user/favorite-toggle-button";
-import { getCurrentUser } from "@/lib/auth/current-user";
 import { getLoreCategoryLabel } from "@/lib/lore/category-label";
 import { prisma } from "@/lib/prisma";
 
@@ -302,7 +300,6 @@ function matchLevel(
 
 export default async function WorldPage({ searchParams }: { searchParams?: RawSearchParams }) {
   const { q, category } = await resolveSearchParams(searchParams);
-  const currentUser = await getCurrentUser();
 
   const where = {
     ...(category ? { category } : {}),
@@ -334,7 +331,7 @@ export default async function WorldPage({ searchParams }: { searchParams?: RawSe
       : {}),
   };
 
-  const [allEntries, entries, favorites] = await Promise.all([
+  const [allEntries, entries] = await Promise.all([
     prisma.loreEntry.findMany({ select: { category: true }, orderBy: { category: "asc" } }),
     prisma.loreEntry.findMany({
       where,
@@ -355,11 +352,9 @@ export default async function WorldPage({ searchParams }: { searchParams?: RawSe
       },
       orderBy: { updatedAt: "desc" },
     }),
-    currentUser ? prisma.favorite.findMany({ where: { userId: currentUser.id, loreEntryId: { not: null } }, select: { loreEntryId: true } }) : Promise.resolve([]),
   ]);
 
   const categories = Array.from(new Set(allEntries.map((entry) => entry.category).filter(Boolean)));
-  const favoriteIds = new Set(favorites.map((entry) => entry.loreEntryId).filter(Boolean));
   const sortedEntries = q
     ? [...entries].sort((left, right) => {
         const matchDelta = matchLevel(left, q) - matchLevel(right, q);
@@ -433,7 +428,6 @@ export default async function WorldPage({ searchParams }: { searchParams?: RawSe
                       <div className="inline-flex rounded-full border border-[rgba(177,145,87,0.18)] bg-[rgba(177,145,87,0.07)] px-2.5 py-1 text-[11px] text-[#dbc189]">{getLoreCategoryLabel(entry.category)}</div>
                       <h3 className="line-clamp-1 text-[17px] font-semibold text-stone-100">{entry.title}</h3>
                     </div>
-                    <FavoriteToggleButton type="lore" targetId={entry.id} initialFavorited={favoriteIds.has(entry.id)} compact />
                   </div>
 
                   <Link href={`/world/${entry.slug}`} className="group mt-3 flex flex-1 flex-col">

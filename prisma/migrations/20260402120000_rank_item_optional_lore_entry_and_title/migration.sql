@@ -1,0 +1,5 @@
+ALTER TABLE "RankItem"
+ADD COLUMN "title" TEXT;
+
+ALTER TABLE "RankItem"
+ALTER COLUMN "loreEntryId" DROP NOT NULL;

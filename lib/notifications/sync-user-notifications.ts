@@ -1,5 +1,7 @@
 ﻿import { prisma } from "@/lib/prisma";
 
+import { getRankItemDisplayTitle } from "@/lib/rank/item-title";
+
 type SyncNotificationParams = {
   userId: string;
 };
@@ -87,7 +89,7 @@ export async function syncUserNotifications({ userId }: SyncNotificationParams) 
 
   for (const vote of rankVotes) {
     const title = "你参与投票的榜单对象有新变化";
-    const body = `${vote.rankItem.board.title}中的“${vote.rankItem.loreEntry?.title || "未命名对象"}”当前分数为 ${vote.rankItem.score}。`;
+    const body = `${vote.rankItem.board.title}中的“${getRankItemDisplayTitle(vote.rankItem)}”当前分数为 ${vote.rankItem.score}。`;
     await ensureNotification(userId, title, body);
   }
 

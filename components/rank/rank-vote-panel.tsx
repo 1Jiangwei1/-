@@ -26,9 +26,11 @@ function parseJsonSafely(text: string) {
 export default function RankVotePanel({
   itemId,
   initialSummary,
+  compact = false,
 }: {
   itemId: string;
   initialSummary: VoteSummary;
+  compact?: boolean;
 }) {
   const router = useRouter();
   const [summary, setSummary] = useState(initialSummary);
@@ -86,28 +88,36 @@ export default function RankVotePanel({
   }
 
   return (
-    <div className="space-y-4">
+    <div className={compact ? "space-y-2.5" : "space-y-4"}>
       {notice ? (
         <div
           className={
             notice.type === "success"
-              ? "rounded-xl border border-emerald-800 bg-emerald-950/40 px-4 py-3 text-sm text-emerald-300"
-              : "rounded-xl border border-red-800 bg-red-950/40 px-4 py-3 text-sm text-red-300"
+              ? compact
+                ? "rounded-xl border border-emerald-800 bg-emerald-950/40 px-3 py-2 text-xs text-emerald-300"
+                : "rounded-xl border border-emerald-800 bg-emerald-950/40 px-4 py-3 text-sm text-emerald-300"
+              : compact
+                ? "rounded-xl border border-red-800 bg-red-950/40 px-3 py-2 text-xs text-red-300"
+                : "rounded-xl border border-red-800 bg-red-950/40 px-4 py-3 text-sm text-red-300"
           }
         >
           {notice.text}
         </div>
       ) : null}
 
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className={compact ? "flex flex-wrap gap-2" : "grid gap-3 md:grid-cols-2"}>
         <button
           type="button"
           disabled={activeAction !== null}
           onClick={() => handleVote("support")}
-          className="rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-4 text-left transition hover:border-zinc-600 disabled:cursor-not-allowed disabled:opacity-60"
+          className={
+            compact
+              ? "inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-950/50 px-3 py-1.5 text-left transition hover:border-zinc-600 disabled:cursor-not-allowed disabled:opacity-60"
+              : "rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-4 text-left transition hover:border-zinc-600 disabled:cursor-not-allowed disabled:opacity-60"
+          }
         >
-          <p className="text-sm font-medium text-zinc-100">支持当前</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-200">
+          <p className={compact ? "text-xs font-medium text-zinc-100" : "text-sm font-medium text-zinc-100"}>支持</p>
+          <p className={compact ? "text-sm font-semibold text-zinc-200" : "mt-2 text-2xl font-semibold text-zinc-200"}>
             {summary.supportCount}
           </p>
         </button>
@@ -116,10 +126,14 @@ export default function RankVotePanel({
           type="button"
           disabled={activeAction !== null}
           onClick={() => handleVote("oppose")}
-          className="rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-4 text-left transition hover:border-zinc-600 disabled:cursor-not-allowed disabled:opacity-60"
+          className={
+            compact
+              ? "inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-950/50 px-3 py-1.5 text-left transition hover:border-zinc-600 disabled:cursor-not-allowed disabled:opacity-60"
+              : "rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-4 text-left transition hover:border-zinc-600 disabled:cursor-not-allowed disabled:opacity-60"
+          }
         >
-          <p className="text-sm font-medium text-zinc-100">不支持</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-200">
+          <p className={compact ? "text-xs font-medium text-zinc-100" : "text-sm font-medium text-zinc-100"}>不支持</p>
+          <p className={compact ? "text-sm font-semibold text-zinc-200" : "mt-2 text-2xl font-semibold text-zinc-200"}>
             {summary.opposeCount}
           </p>
         </button>

@@ -1,24 +1,16 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { UserRole } from "@prisma/client";
 
 import RankBoardManager from "@/components/admin/rank-board-manager";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { prisma } from "@/lib/prisma";
-import { matchesRankBoardCategory, RANK_BOARD_DEFINITIONS } from "@/lib/rank/boards";
+import { getRankItemDisplayTitle } from "@/lib/rank/item-title";
+import { RANK_BOARD_DEFINITIONS } from "@/lib/rank/boards";
 
 export default async function AdminRankPage() {
   const user = await getCurrentUser();
-
-  if (!user || (user.role !== UserRole.OWNER && user.role !== UserRole.ADMIN)) {
-    return (
-      <div className="space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6">
-        <h1 className="text-2xl font-semibold text-zinc-100">没有权限进入榜单管理</h1>
-        <p className="text-sm text-zinc-400">
-          只有站点 OWNER 或 ADMIN 才能进入榜单管理页面。
-        </p>
-      </div>
-    );
-  }
+  const canModerateRank =
+    !!user && (user.role === UserRole.OWNER || user.role === UserRole.ADMIN);
 
   const boardTitleSet = new Set(RANK_BOARD_DEFINITIONS.map((item) => item.title));
 
@@ -83,47 +75,38 @@ export default async function AdminRankPage() {
     })
   );
 
-  const loreEntries = await prisma.loreEntry.findMany({
-    select: {
-      id: true,
-      title: true,
-      category: true,
-    },
-    orderBy: {
-      updatedAt: "desc",
-    },
-  });
-
   const boardPayload = boards.map((board) => ({
     id: board.id,
     title: board.title,
     items: board.items.map((item) => ({
       id: item.id,
       score: item.score,
-      loreEntryId: item.loreEntryId,
-      title: item.loreEntry.title,
-      category: item.loreEntry.category,
+      title: getRankItemDisplayTitle(item),
+      description: item.description,
+      customTitle: item.title,
+      category: item.loreEntry?.category ?? null,
+      loreEntryTitle: item.loreEntry?.title ?? null,
     })),
-    candidates: loreEntries
-      .filter((entry) => matchesRankBoardCategory(board.title, entry.category))
-      .map((entry) => ({
-        id: entry.id,
-        title: entry.title,
-        category: entry.category,
-      })),
   }));
 
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Link href="/rank" className="inline-flex items-center text-sm font-medium text-zinc-400 transition hover:text-zinc-100">
+        <Link
+          href="/rank"
+          className="inline-flex items-center text-sm font-medium text-zinc-400 transition hover:text-zinc-100"
+        >
           返回战力排行
         </Link>
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-100">榜单管理</h1>
-        <p className="text-sm text-zinc-400">目前只保留人物榜，并且只允许从人物词条中选择上榜对象。</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-100">
+          榜单管理
+        </h1>
+        <p className="text-sm text-zinc-400">
+          战力榜现在只支持手动填写名称创建角色。已有旧词条绑定数据仍可继续展示。
+        </p>
       </div>
 
-      <RankBoardManager boards={boardPayload} />
+      <RankBoardManager boards={boardPayload} canModerateRank={canModerateRank} />
     </div>
   );
 }

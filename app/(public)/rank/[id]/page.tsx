@@ -2,9 +2,9 @@
 import { notFound } from "next/navigation";
 
 import RankCommentForm from "@/components/rank/rank-comment-form";
-import RankVotePanel from "@/components/rank/rank-vote-panel";
 import { getLoreCategoryLabel } from "@/lib/lore/category-label";
 import { prisma } from "@/lib/prisma";
+import { getRankItemDisplayTitle } from "@/lib/rank/item-title";
 
 type PageParams = Promise<{
   id: string;
@@ -50,11 +50,6 @@ export default async function RankDetailPage({
           title: true,
           slug: true,
           category: true,
-        },
-      },
-      votes: {
-        select: {
-          value: true,
         },
       },
       comments: {
@@ -114,9 +109,6 @@ export default async function RankDetailPage({
     ])
   );
 
-  const supportCount = item.votes.filter((vote) => vote.value === 1).length;
-  const opposeCount = item.votes.filter((vote) => vote.value === -1).length;
-
   return (
     <div className="space-y-8">
       <section className="surface-panel rounded-[28px] px-5 py-6 sm:px-6 sm:py-7">
@@ -129,39 +121,30 @@ export default async function RankDetailPage({
           </Link>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-3xl font-semibold tracking-tight text-stone-100">
-              {item.loreEntry.title}
+              {getRankItemDisplayTitle(item)}
             </h1>
             <span className="rounded-full accent-chip px-3 py-1 text-xs">
               {item.board.title}
             </span>
-            <span className="rounded-full soft-chip px-3 py-1 text-xs">
-              {getLoreCategoryLabel(item.loreEntry.category)}
-            </span>
+            {item.loreEntry?.category ? (
+              <span className="rounded-full soft-chip px-3 py-1 text-xs">
+                {getLoreCategoryLabel(item.loreEntry.category)}
+              </span>
+            ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm text-[#a5aea3]">
             <span>当前排名：{ranking}</span>
             <span>当前分数：{item.score}</span>
             <span>评论：{item.comments.length}</span>
-            <Link
-              href={`/world/${item.loreEntry.slug}`}
-              className="text-[#d3d8cf] transition hover:text-white"
-            >
-              查看词条详情
-            </Link>
+            {item.loreEntry?.slug ? (
+              <Link
+                href={`/world/${item.loreEntry.slug}`}
+                className="text-[#d3d8cf] transition hover:text-white"
+              >
+                查看词条详情
+              </Link>
+            ) : null}
           </div>
-        </div>
-      </section>
-
-      <section className="surface-card rounded-[26px] p-6">
-        <h2 className="text-xl font-semibold text-stone-100">投票情况</h2>
-        <div className="mt-4">
-          <RankVotePanel
-            itemId={item.id}
-            initialSummary={{
-              supportCount,
-              opposeCount,
-            }}
-          />
         </div>
       </section>
 
@@ -169,7 +152,7 @@ export default async function RankDetailPage({
         <div className="space-y-2">
           <h2 className="text-xl font-semibold text-stone-100">发表评论</h2>
           <p className="text-sm text-[#b2b9af]">
-            登录后即可使用你的账号投票和发表评论，不需要额外权限。
+            登录后即可使用你的账号发表评论，不需要额外权限。
           </p>
         </div>
         <div className="mt-4">
