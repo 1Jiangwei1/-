@@ -80,40 +80,44 @@ export default async function RankPage() {
             {items.map((item, index) => (
               <div
                 key={item.id}
-                className="rounded-[22px] border border-[rgba(177,145,87,0.1)] bg-[rgba(8,12,12,0.72)] p-4 transition hover:border-[rgba(177,145,87,0.16)]"
+                className="rounded-[20px] border border-[rgba(177,145,87,0.1)] bg-[rgba(11,15,15,0.68)] px-3.5 py-3.5 shadow-[0_8px_18px_rgba(0,0,0,0.08)] transition hover:border-[rgba(177,145,87,0.16)] sm:rounded-[22px] sm:p-4"
               >
-                <div className="flex items-start gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[rgba(177,145,87,0.22)] bg-[rgba(177,145,87,0.07)] text-sm font-semibold text-[#ecd8a6]">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(177,145,87,0.2)] bg-[rgba(177,145,87,0.06)] text-xs font-semibold text-[#ecd8a6] sm:h-11 sm:w-11 sm:rounded-2xl sm:text-sm">
                     {index + 1}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="min-w-0 space-y-2">
-                        <Link href={`/rank/${item.id}`} className="block">
-                          <p className="rank-name truncate text-[17px] font-medium text-[#d8cda8]">
-                            {getRankItemDisplayTitle(item)}
-                          </p>
-                        </Link>
+                    <div className="space-y-3">
+                      <div className="min-w-0 space-y-1.5">
+                        <div className="flex items-start gap-2">
+                          <Link href={`/rank/${item.id}`} className="min-w-0 flex-1">
+                            <p className="rank-name truncate text-[15px] font-medium leading-5 text-[#ddcfab] sm:text-[17px] sm:leading-6">
+                              {getRankItemDisplayTitle(item)}
+                            </p>
+                          </Link>
+                          <div className="shrink-0 rounded-full border border-[rgba(177,145,87,0.18)] bg-[rgba(177,145,87,0.06)] px-2.5 py-1 text-right">
+                            <p className="text-[10px] leading-none text-[#8f968d]">分数</p>
+                            <p className="mt-1 text-sm font-semibold leading-none text-[#f1e4bf] sm:text-base">
+                              {item.score}
+                            </p>
+                          </div>
+                        </div>
+
                         {item.description ? (
-                          <p className="line-clamp-1 pt-0.5 text-sm text-[#b8bbaf]">
+                          <p className="text-[13px] leading-5 text-[#b8bbaf] sm:text-sm sm:leading-6">
                             {item.description}
                           </p>
                         ) : null}
-                        <div className="flex flex-wrap gap-x-2 gap-y-1 pt-0.5 text-xs text-[#8f968d]">
+
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[#8f968d] sm:text-xs">
                           <span>{item.votes.length} 次投票</span>
-                          <span className="hidden text-[#697067] sm:inline">·</span>
+                          <span className="text-[#697067]">·</span>
                           <span>{item._count.comments} 条评论</span>
                         </div>
                       </div>
 
-                      <div className="min-w-0 space-y-3 sm:shrink-0 sm:text-right">
-                        <div>
-                          <p className="text-xs text-[#8f968d]">当前分数</p>
-                          <p className="text-xl font-semibold text-[#f1e4bf]">
-                            {item.score}
-                          </p>
-                        </div>
-                        <div className="space-y-2.5">
+                      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2 sm:grid-cols-[minmax(0,1fr)_88px] sm:gap-2.5">
+                        <div className="min-w-0">
                           <RankVotePanel
                             itemId={item.id}
                             initialSummary={{
@@ -122,15 +126,13 @@ export default async function RankPage() {
                             }}
                             compact
                           />
-                          <div className="flex sm:justify-end">
-                            <Link
-                              href={`/rank/${item.id}`}
-                              className="inline-flex items-center rounded-full border border-[rgba(177,145,87,0.18)] bg-[rgba(177,145,87,0.06)] px-3 py-1.5 text-xs font-medium text-[#ecd8a6] transition hover:bg-[rgba(177,145,87,0.12)]"
-                            >
-                              详情
-                            </Link>
-                          </div>
                         </div>
+                        <Link
+                          href={`/rank/${item.id}`}
+                          className="inline-flex h-[34px] items-center justify-center rounded-full border border-[rgba(177,145,87,0.18)] bg-[rgba(177,145,87,0.06)] px-2.5 text-[11px] font-medium text-[#ecd8a6] transition hover:bg-[rgba(177,145,87,0.12)] sm:h-[36px] sm:px-3 sm:text-xs"
+                        >
+                          详情
+                        </Link>
                       </div>
                     </div>
                   </div>

@@ -105,19 +105,19 @@ export default function RankVotePanel({
         </div>
       ) : null}
 
-      <div className={compact ? "flex flex-wrap gap-2" : "grid gap-3 md:grid-cols-2"}>
+      <div className={compact ? "grid grid-cols-2 gap-2" : "grid gap-3 md:grid-cols-2"}>
         <button
           type="button"
           disabled={activeAction !== null}
           onClick={() => handleVote("support")}
           className={
             compact
-              ? "inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-950/50 px-3 py-1.5 text-left transition hover:border-zinc-600 disabled:cursor-not-allowed disabled:opacity-60"
+              ? "inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-[rgba(118,137,129,0.16)] bg-[rgba(11,15,15,0.56)] px-2.5 py-1.5 text-center transition hover:border-[rgba(177,145,87,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
               : "rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-4 text-left transition hover:border-zinc-600 disabled:cursor-not-allowed disabled:opacity-60"
           }
         >
-          <p className={compact ? "text-xs font-medium text-zinc-100" : "text-sm font-medium text-zinc-100"}>支持</p>
-          <p className={compact ? "text-sm font-semibold text-zinc-200" : "mt-2 text-2xl font-semibold text-zinc-200"}>
+          <p className={compact ? "truncate text-[11px] font-medium text-zinc-100" : "text-sm font-medium text-zinc-100"}>支持</p>
+          <p className={compact ? "text-[13px] font-semibold text-[#ecd8a6]" : "mt-2 text-2xl font-semibold text-zinc-200"}>
             {summary.supportCount}
           </p>
         </button>
@@ -128,12 +128,12 @@ export default function RankVotePanel({
           onClick={() => handleVote("oppose")}
           className={
             compact
-              ? "inline-flex items-center gap-1.5 rounded-full border border-zinc-800 bg-zinc-950/50 px-3 py-1.5 text-left transition hover:border-zinc-600 disabled:cursor-not-allowed disabled:opacity-60"
+              ? "inline-flex min-w-0 items-center justify-center gap-1 rounded-full border border-[rgba(118,137,129,0.16)] bg-[rgba(11,15,15,0.56)] px-2.5 py-1.5 text-center transition hover:border-[rgba(177,145,87,0.22)] disabled:cursor-not-allowed disabled:opacity-60"
               : "rounded-2xl border border-zinc-800 bg-zinc-950/50 px-4 py-4 text-left transition hover:border-zinc-600 disabled:cursor-not-allowed disabled:opacity-60"
           }
         >
-          <p className={compact ? "text-xs font-medium text-zinc-100" : "text-sm font-medium text-zinc-100"}>不支持</p>
-          <p className={compact ? "text-sm font-semibold text-zinc-200" : "mt-2 text-2xl font-semibold text-zinc-200"}>
+          <p className={compact ? "truncate text-[11px] font-medium text-zinc-100" : "text-sm font-medium text-zinc-100"}>不支持</p>
+          <p className={compact ? "text-[13px] font-semibold text-zinc-200" : "mt-2 text-2xl font-semibold text-zinc-200"}>
             {summary.opposeCount}
           </p>
         </button>

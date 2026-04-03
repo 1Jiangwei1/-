@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import { UserRole } from "@prisma/client";
 
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { prisma } from "@/lib/prisma";
@@ -39,6 +40,7 @@ export default async function MePage() {
     prisma.comment.findMany({ where: { userId: currentUser.id }, include: { post: true }, orderBy: { createdAt: "desc" } }),
     prisma.rankVote.findMany({ where: { userId: currentUser.id }, include: { rankItem: { include: { board: true, loreEntry: true } } } }),
   ]);
+  const canAccessAdmin = currentUser.role === UserRole.ADMIN || currentUser.role === UserRole.OWNER;
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6">
@@ -59,6 +61,30 @@ export default async function MePage() {
         <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-5"><p className="text-sm text-zinc-400">我的评论</p><p className="mt-3 text-3xl font-semibold text-zinc-100">{comments.length}</p></div>
         <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-5"><p className="text-sm text-zinc-400">我的投票</p><p className="mt-3 text-3xl font-semibold text-zinc-100">{votes.length}</p></div>
       </section>
+
+      {canAccessAdmin ? (
+        <section className="rounded-3xl border border-[rgba(177,145,87,0.18)] bg-[rgba(20,25,24,0.78)] p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-zinc-100">后台入口</h2>
+              <p className="mt-2 text-sm text-zinc-400">从这里进入内容审核、战力榜维护和首页快报权限管理。</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/admin/lore" className="rounded-full border border-zinc-700 px-4 py-2 text-sm text-zinc-100 transition hover:border-zinc-500 hover:bg-zinc-900">
+                词条后台
+              </Link>
+              <Link href="/admin/rank" className="rounded-full border border-[rgba(177,145,87,0.24)] bg-[rgba(177,145,87,0.08)] px-4 py-2 text-sm text-[#e8d4a1] transition hover:bg-[rgba(177,145,87,0.16)]">
+                战力榜后台
+              </Link>
+              {currentUser.role === UserRole.OWNER ? (
+                <Link href="/admin/briefing" className="rounded-full border border-zinc-700 px-4 py-2 text-sm text-zinc-100 transition hover:border-zinc-500 hover:bg-zinc-900">
+                  快报权限
+                </Link>
+              ) : null}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="grid gap-6 xl:grid-cols-2">
         <div className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-6">
