@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Notice =
   | { type: "success"; text: string }
@@ -36,6 +36,30 @@ export default function RankVotePanel({
   const [summary, setSummary] = useState(initialSummary);
   const [notice, setNotice] = useState<Notice>(null);
   const [activeAction, setActiveAction] = useState<VoteAction | null>(null);
+  const restoreScrollRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (restoreScrollRef.current === null) {
+      return;
+    }
+
+    const targetY = restoreScrollRef.current;
+    let frame = 0;
+
+    const restore = () => {
+      window.scrollTo({ top: targetY, behavior: "auto" });
+      frame += 1;
+
+      if (frame < 6) {
+        requestAnimationFrame(restore);
+        return;
+      }
+
+      restoreScrollRef.current = null;
+    };
+
+    requestAnimationFrame(restore);
+  });
 
   async function handleVote(action: VoteAction) {
     setNotice(null);
@@ -76,6 +100,7 @@ export default function RankVotePanel({
         type: "success",
         text: data?.message ?? "投票成功",
       });
+      restoreScrollRef.current = window.scrollY;
       router.refresh();
     } catch {
       setNotice({
