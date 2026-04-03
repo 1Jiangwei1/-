@@ -166,7 +166,7 @@ function resolveCardSummary(entry: {
 }) {
   const summary = entry.summary?.trim();
   if (summary) {
-    return truncateText(cleanDisplayText(summary), 30);
+    return truncateText(cleanDisplayText(summary), 72);
   }
 
   const content = entry.content?.trim();
@@ -390,28 +390,32 @@ export default async function WorldPage({ searchParams }: { searchParams?: RawSe
         {sortedEntries.length === 0 ? (
           <div className="surface-card rounded-[22px] px-6 py-14 text-center text-sm text-[#adb4aa]">{q ? "没有找到匹配的词条，换个关键词试试。" : "当前还没有可显示的词条。"}</div>
         ) : (
-          <div className="grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="columns-2 gap-3 sm:gap-4 xl:gap-5">
             {sortedEntries.map((entry) => {
               const summary = resolveCardSummary(entry);
 
               return (
-                <div key={entry.id} className="surface-card flex h-full flex-col rounded-[22px] p-4 transition hover:border-[rgba(177,145,87,0.16)] hover:bg-[rgba(26,32,31,0.98)]">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0 space-y-2">
-                      <div className="inline-flex rounded-full border border-[rgba(177,145,87,0.18)] bg-[rgba(177,145,87,0.07)] px-2.5 py-1 text-[11px] text-[#dbc189]">{getLoreCategoryLabel(entry.category)}</div>
-                      <h3 className="line-clamp-1 text-[17px] font-semibold text-stone-100">{entry.title}</h3>
+                <article key={entry.id} className="mb-2.5 break-inside-avoid sm:mb-3.5 xl:mb-4">
+                  <div className="surface-card rounded-[16px] border border-[rgba(118,137,129,0.12)] bg-[rgba(22,29,28,0.86)] p-2.5 sm:rounded-[18px] sm:p-3 transition hover:border-[rgba(177,145,87,0.16)] hover:bg-[rgba(27,33,32,0.98)]">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 space-y-2">
+                        <div className="inline-flex rounded-full border border-[rgba(177,145,87,0.18)] bg-[rgba(177,145,87,0.07)] px-2.5 py-1 text-[11px] text-[#dbc189]">{getLoreCategoryLabel(entry.category)}</div>
+                        <h3 className="line-clamp-1 text-[14px] font-semibold leading-5 text-stone-100 sm:text-[16px] sm:leading-6">
+                          {entry.title}
+                        </h3>
+                      </div>
                     </div>
-                  </div>
 
-                  <Link href={`/world/${entry.slug}`} className="group mt-3 flex flex-1 flex-col">
-                    <div className="flex h-full flex-col">
-                      <p className="line-clamp-1 min-h-[1.5rem] text-sm leading-6 text-[#bcc3b9]">
+                    <Link href={`/world/${entry.slug}`} className="mt-2.5 block space-y-2.5">
+                      <p className="text-[12px] leading-5 text-[#c0c6bc] sm:text-[13px] sm:leading-6">
                         {summary}
                       </p>
-                      <p className="mt-auto pt-4 text-sm font-medium text-[#aeb7aa] transition group-hover:text-[#d7c490]">查看详情</p>
-                    </div>
-                  </Link>
-                </div>
+                      <p className="border-t border-[rgba(118,137,129,0.12)] pt-2.5 text-[13px] font-medium text-[#aeb7aa] transition hover:text-[#d7c490] sm:text-sm">
+                        查看详情
+                      </p>
+                    </Link>
+                  </div>
+                </article>
               );
             })}
           </div>
