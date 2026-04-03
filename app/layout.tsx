@@ -25,12 +25,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <header className="sticky top-0 z-40 border-b border-[rgba(118,137,129,0.14)] bg-[rgba(17,23,22,0.82)] backdrop-blur-xl">
             <div className="container-mobile">
               <div className="flex flex-col gap-3 py-4">
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start justify-between gap-3 border-b border-[rgba(118,137,129,0.12)] pb-3">
                   <Link href="/" className="min-w-0 flex-1 pr-2">
                     <div className="min-w-0">
-                      <p className="text-[13px] font-semibold leading-[1.05] text-stone-100 sm:text-[1.02rem]">
-                        <span className="block">玄鉴仙族</span>
-                        <span className="mt-1 block">社区</span>
+                      <p className="brand-mark text-[1.08rem] leading-[1.02] text-stone-100 sm:text-[1.24rem]">
+                        <span className="block">玄鑑</span>
+                        <span className="mt-0.5 block">社區</span>
                       </p>
                     </div>
                   </Link>
@@ -39,7 +39,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                   </div>
                 </div>
 
-                <nav className="flex gap-2 overflow-x-auto pb-1 text-sm whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                <nav className="flex gap-2 overflow-x-auto rounded-[20px] bg-[rgba(14,19,18,0.38)] px-1.5 py-1.5 text-sm whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                   {NAV_ITEMS.map((item) => (
                     <Link
                       key={item.href}

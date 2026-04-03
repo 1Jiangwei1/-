@@ -111,3 +111,11 @@ textarea::placeholder {
     0 1px 8px rgba(220, 214, 188, 0.1),
     0 0 18px rgba(192, 206, 194, 0.06);
 }
+
+.brand-mark {
+  font-family: "FZXiaoZhuanTi-S13T", "FZXiaoZhuanTi", "STKaiti", "KaiTi", "STSong", "Noto Serif SC", serif;
+  letter-spacing: 0.08em;
+  text-shadow:
+    0 1px 10px rgba(220, 214, 188, 0.08),
+    0 0 16px rgba(192, 206, 194, 0.05);
+}

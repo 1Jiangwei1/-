@@ -85,7 +85,7 @@ export default async function RankPage() {
                               {getRankItemDisplayTitle(item)}
                             </p>
                           </Link>
-                          <div className="shrink-0 rounded-full border border-[rgba(177,145,87,0.18)] bg-[rgba(177,145,87,0.06)] px-2.5 py-1 text-right">
+                          <div className="shrink-0 text-right">
                             <p className="text-[10px] leading-none text-[#8f968d]">分数</p>
                             <p className="mt-1 text-sm font-semibold leading-none text-[#f1e4bf] sm:text-base">
                               {item.score}
