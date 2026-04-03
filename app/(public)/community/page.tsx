@@ -48,6 +48,15 @@ function fallbackSummary(category: string, title: string) {
   return `围绕《${title}》的讨论已经开启，进入帖子可继续查看完整内容。`;
 }
 
+function truncateSummary(text: string, maxLength: number) {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxLength) {
+    return normalized;
+  }
+
+  return `${normalized.slice(0, maxLength).trim()}...`;
+}
+
 export default async function CommunityPage({ searchParams }: { searchParams?: RawSearchParams }) {
   const { q } = await resolveSearchParams(searchParams);
   const currentUser = await getCurrentUser();
@@ -68,7 +77,7 @@ export default async function CommunityPage({ searchParams }: { searchParams?: R
         id: post.id,
         title: post.title,
         category: parsed.category,
-        summary: parsed.body,
+        summary: truncateSummary(parsed.body, 50),
         authorId: post.user.id,
         createdAt: post.createdAt,
         createdAtLabel: formatPostDate(post.createdAt),

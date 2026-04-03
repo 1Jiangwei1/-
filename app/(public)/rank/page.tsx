@@ -1,5 +1,4 @@
 ﻿import Link from "next/link";
-import { UserRole } from "@prisma/client";
 
 import RankVotePanel from "@/components/rank/rank-vote-panel";
 import { getCurrentUser } from "@/lib/auth/current-user";
@@ -29,8 +28,7 @@ export default async function RankPage() {
     }),
   ]);
 
-  const canManageRank =
-    currentUser?.role === UserRole.OWNER || currentUser?.role === UserRole.ADMIN;
+  const canAddRankItem = Boolean(currentUser);
 
   const boardMap = new Map(boards.map((board) => [board.title, board]));
   const definition = RANK_BOARD_DEFINITIONS[0];
@@ -50,9 +48,9 @@ export default async function RankPage() {
             <span className="inline-flex rounded-full accent-chip px-2.5 py-1 text-[11px]">
               {items.length > 0 ? `${items.length} 位上榜人物` : "暂无数据"}
             </span>
-            {canManageRank ? (
+            {canAddRankItem ? (
               <Link
-                href="/admin/rank"
+                href="/rank/new"
                 className="inline-flex shrink-0 items-center rounded-full border border-[rgba(177,145,87,0.22)] bg-[rgba(177,145,87,0.08)] px-3 py-1.5 text-xs font-medium text-[#e8d5a3] transition hover:bg-[rgba(177,145,87,0.14)]"
               >
                 添加角色
