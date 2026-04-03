@@ -28,11 +28,11 @@ export default function UserNav({
 
   if (!user) {
     return (
-      <div className="flex items-center gap-2">
-        <Link href="/auth/login" className="rounded-full border border-[rgba(126,165,154,0.22)] bg-[rgba(126,165,154,0.08)] px-3 py-2 text-sm text-[#d9dfdb] transition hover:border-[rgba(177,145,87,0.24)] hover:text-white">
+      <div className="flex w-full items-center gap-2 sm:w-auto sm:justify-end">
+        <Link href="/auth/login" className="shrink-0 rounded-full border border-[rgba(126,165,154,0.22)] bg-[rgba(126,165,154,0.08)] px-3 py-2 text-sm text-[#d9dfdb] transition hover:border-[rgba(177,145,87,0.24)] hover:text-white">
           登录
         </Link>
-        <Link href="/auth/register" className="rounded-full border border-[rgba(177,145,87,0.24)] bg-[rgba(177,145,87,0.08)] px-3 py-2 text-sm text-[#e8d4a1] transition hover:bg-[rgba(177,145,87,0.16)]">
+        <Link href="/auth/register" className="shrink-0 rounded-full border border-[rgba(177,145,87,0.24)] bg-[rgba(177,145,87,0.08)] px-3 py-2 text-sm text-[#e8d4a1] transition hover:bg-[rgba(177,145,87,0.16)]">
           注册
         </Link>
       </div>
@@ -40,21 +40,21 @@ export default function UserNav({
   }
 
   return (
-    <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap">
-      <Link href="/notifications" className="rounded-full border border-[rgba(126,165,154,0.18)] px-3 py-2 text-sm text-[#c7cac0] transition hover:border-[rgba(177,145,87,0.28)] hover:text-white">
+    <div className="flex w-full items-center gap-2 overflow-x-auto whitespace-nowrap pb-1 sm:w-auto sm:justify-end sm:overflow-visible">
+      <Link href="/notifications" className="shrink-0 rounded-full border border-[rgba(126,165,154,0.18)] px-3 py-2 text-sm text-[#c7cac0] transition hover:border-[rgba(177,145,87,0.28)] hover:text-white">
         通知
       </Link>
-      <Link href="/me" className="rounded-full border border-[rgba(126,165,154,0.18)] px-3 py-2 text-sm text-[#c7cac0] transition hover:border-[rgba(177,145,87,0.28)] hover:text-white">
+      <Link href="/me" className="shrink-0 rounded-full border border-[rgba(126,165,154,0.18)] px-3 py-2 text-sm text-[#c7cac0] transition hover:border-[rgba(177,145,87,0.28)] hover:text-white">
         我的
       </Link>
-      <span className="rounded-full bg-[rgba(177,145,87,0.08)] px-3 py-2 text-sm text-[#e6d19a]">
+      <span className="max-w-[9.5rem] truncate rounded-full bg-[rgba(177,145,87,0.08)] px-3 py-2 text-sm text-[#e6d19a] sm:max-w-[12rem]">
         {user.username}
       </span>
       <button
         type="button"
         onClick={handleLogout}
         disabled={isSubmitting}
-        className="rounded-full border border-[rgba(177,145,87,0.18)] px-3 py-2 text-sm text-[#cfc5ad] transition hover:border-[rgba(177,145,87,0.32)] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+        className="shrink-0 rounded-full border border-[rgba(177,145,87,0.18)] px-3 py-2 text-sm text-[#cfc5ad] transition hover:border-[rgba(177,145,87,0.32)] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isSubmitting ? "退出中..." : "退出"}
       </button>

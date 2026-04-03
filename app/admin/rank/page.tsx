@@ -1,4 +1,5 @@
-import Link from "next/link";
+﻿import Link from "next/link";
+import { redirect } from "next/navigation";
 import { UserRole } from "@prisma/client";
 
 import RankBoardManager from "@/components/admin/rank-board-manager";
@@ -9,8 +10,14 @@ import { RANK_BOARD_DEFINITIONS } from "@/lib/rank/boards";
 
 export default async function AdminRankPage() {
   const user = await getCurrentUser();
-  const canModerateRank =
-    !!user && (user.role === UserRole.OWNER || user.role === UserRole.ADMIN);
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  if (user.role !== UserRole.OWNER && user.role !== UserRole.ADMIN) {
+    redirect("/rank");
+  }
 
   const boardTitleSet = new Set(RANK_BOARD_DEFINITIONS.map((item) => item.title));
 
@@ -42,38 +49,10 @@ export default async function AdminRankPage() {
   });
 
   const boardMap = new Map(existingBoards.map((board) => [board.title, board]));
-
-  const boards = await Promise.all(
-    RANK_BOARD_DEFINITIONS.map(async (definition) => {
-      const existing = boardMap.get(definition.title);
-
-      if (existing) {
-        return existing;
-      }
-
-      return prisma.rankBoard.create({
-        data: {
-          title: definition.title,
-        },
-        include: {
-          items: {
-            include: {
-              loreEntry: {
-                select: {
-                  id: true,
-                  title: true,
-                  category: true,
-                },
-              },
-            },
-            orderBy: {
-              score: "desc",
-            },
-          },
-        },
-      });
-    })
-  );
+  const boards = RANK_BOARD_DEFINITIONS.flatMap((definition) => {
+    const board = boardMap.get(definition.title);
+    return board ? [board] : [];
+  });
 
   const boardPayload = boards.map((board) => ({
     id: board.id,
@@ -96,17 +75,17 @@ export default async function AdminRankPage() {
           href="/rank"
           className="inline-flex items-center text-sm font-medium text-zinc-400 transition hover:text-zinc-100"
         >
-          返回战力排行
+          返回战力榜
         </Link>
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-100">
           榜单管理
         </h1>
         <p className="text-sm text-zinc-400">
-          战力榜现在只支持手动填写名称创建角色。已有旧词条绑定数据仍可继续展示。
+          这里用于维护战力榜榜项与列表说明。页面现在只读取现有榜单，不会在渲染阶段自动写库。
         </p>
       </div>
 
-      <RankBoardManager boards={boardPayload} canModerateRank={canModerateRank} />
+      <RankBoardManager boards={boardPayload} canModerateRank />
     </div>
   );
 }

@@ -2,12 +2,11 @@
 
 import DeletePostButton from "@/components/community/delete-post-button";
 import { getCurrentUser } from "@/lib/auth/current-user";
-import { COMMUNITY_CATEGORIES, decodeCommunityPostContent } from "@/lib/community/post-content";
+import { decodeCommunityPostContent } from "@/lib/community/post-content";
 import { prisma } from "@/lib/prisma";
 
 type RawSearchParams = Promise<{
-  category?: string | string[];
-  sort?: string | string[];
+  q?: string | string[];
 }>;
 
 function pickFirst(value?: string | string[]) {
@@ -18,13 +17,19 @@ async function resolveSearchParams(searchParams?: RawSearchParams) {
   const resolved = await searchParams;
 
   return {
-    category: pickFirst(resolved?.category).trim(),
-    sort: pickFirst(resolved?.sort).trim() || "latest",
+    q: pickFirst(resolved?.q).trim(),
   };
 }
 
 function authorName(username: string, email: string) {
   return username || email || "未知用户";
+}
+
+function formatPostDate(date: Date) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
 }
 
 function fallbackSummary(category: string, title: string) {
@@ -44,7 +49,7 @@ function fallbackSummary(category: string, title: string) {
 }
 
 export default async function CommunityPage({ searchParams }: { searchParams?: RawSearchParams }) {
-  const { category, sort } = await resolveSearchParams(searchParams);
+  const { q } = await resolveSearchParams(searchParams);
   const currentUser = await getCurrentUser();
 
   const posts = await prisma.post.findMany({
@@ -66,52 +71,40 @@ export default async function CommunityPage({ searchParams }: { searchParams?: R
         summary: parsed.body,
         authorId: post.user.id,
         createdAt: post.createdAt,
+        createdAtLabel: formatPostDate(post.createdAt),
         author: authorName(post.user.username, post.user.email),
         commentCount: post._count.comments,
       };
     })
-    .filter((post) => (category ? post.category === category : true))
-    .sort((left, right) => {
-      if (sort === "hot" && right.commentCount !== left.commentCount) {
-        return right.commentCount - left.commentCount;
+    .filter((post) => {
+      if (!q) {
+        return true;
       }
 
-      return right.createdAt.getTime() - left.createdAt.getTime();
-    });
+      const keyword = q.toLowerCase();
+      return [post.title, post.category, post.summary, post.author]
+        .filter(Boolean)
+        .some((field) => field.toLowerCase().includes(keyword));
+    })
+    .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <section className="surface-panel rounded-[24px] px-5 py-5 sm:px-6 sm:py-5.5">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="space-y-2.5">
-            <p className="text-xs section-kicker">Community Threads</p>
-            <h1 className="text-2xl font-semibold tracking-tight text-stone-100 sm:text-3xl">讨论区</h1>
-            <p className="max-w-2xl text-sm leading-6 text-[#c0c7bc]">按分类和热度快速扫读帖子，首屏尽快露出讨论内容。</p>
-          </div>
-
-          <Link href="/community/new" className="inline-flex items-center rounded-full bg-[rgba(177,145,87,0.92)] px-4 py-2.5 text-sm font-medium text-[#171208] transition hover:bg-[#dbc189]">发布新帖</Link>
-        </div>
-      </section>
-
       <section className="surface-card rounded-[22px] p-4 sm:p-4.5">
-        <form className="grid gap-4 md:grid-cols-[220px,220px,auto]">
-          <div className="space-y-2">
-            <label htmlFor="community-category" className="text-sm font-medium text-[#dfded2]">分类筛选</label>
-            <select id="community-category" name="category" defaultValue={category} className="w-full">
-              <option value="">全部分类</option>
-              {COMMUNITY_CATEGORIES.map((item) => <option key={item} value={item}>{item}</option>)}
-            </select>
+        <form className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="min-w-0 flex-1">
+            <label htmlFor="community-search" className="sr-only">搜索帖子</label>
+            <input
+              id="community-search"
+              name="q"
+              defaultValue={q}
+              placeholder="搜索标题、正文、作者"
+              className="w-full"
+            />
           </div>
-          <div className="space-y-2">
-            <label htmlFor="community-sort" className="text-sm font-medium text-[#dfded2]">排序方式</label>
-            <select id="community-sort" name="sort" defaultValue={sort} className="w-full">
-              <option value="latest">最新</option>
-              <option value="hot">热门</option>
-            </select>
-          </div>
-          <div className="flex items-end gap-3">
-            <button type="submit" className="inline-flex items-center rounded-full border border-[rgba(177,145,87,0.24)] bg-[rgba(177,145,87,0.08)] px-4 py-2.5 text-sm font-medium text-[#ecd8a6] transition hover:bg-[rgba(177,145,87,0.14)]">应用筛选</button>
-            <Link href="/community" className="inline-flex items-center rounded-full border border-[rgba(126,165,154,0.22)] bg-[rgba(126,165,154,0.08)] px-4 py-2.5 text-sm font-medium text-[#d3dbd7] transition hover:border-[rgba(177,145,87,0.22)] hover:text-white">清空</Link>
+          <div className="flex gap-3 sm:shrink-0">
+            <button type="submit" className="inline-flex items-center justify-center rounded-full border border-[rgba(177,145,87,0.24)] bg-[rgba(177,145,87,0.08)] px-4 py-2.5 text-sm font-medium text-[#ecd8a6] transition hover:bg-[rgba(177,145,87,0.14)]">搜索</button>
+            <Link href="/community/new" className="inline-flex items-center justify-center rounded-full bg-[rgba(177,145,87,0.92)] px-4 py-2.5 text-sm font-medium text-[#171208] transition hover:bg-[#dbc189]">发布新帖</Link>
           </div>
         </form>
       </section>
@@ -123,37 +116,41 @@ export default async function CommunityPage({ searchParams }: { searchParams?: R
         </div>
 
         {normalizedPosts.length === 0 ? (
-          <div className="surface-card rounded-[22px] px-6 py-14 text-center text-sm text-[#adb4aa]">当前筛选条件下还没有帖子，试试切换分类或直接发布第一篇讨论。</div>
+          <div className="surface-card rounded-[22px] px-6 py-14 text-center text-sm text-[#adb4aa]">{q ? "没有找到匹配的帖子，换个关键词试试。" : "当前还没有帖子，直接发布第一篇讨论吧。"}</div>
         ) : (
-          <div className="space-y-3.5">
+          <div className="columns-2 gap-3 sm:gap-4 xl:gap-5">
             {normalizedPosts.map((post) => (
-              <div key={post.id} className="surface-card rounded-[22px] p-4 transition hover:border-[rgba(177,145,87,0.16)] hover:bg-[rgba(27,33,32,0.98)]">
-                <div className="flex items-start justify-between gap-4">
-                  <Link href={`/community/${post.id}`} className="min-w-0 flex-1">
-                    <div className="space-y-2.5">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <span className="inline-flex rounded-full border border-[rgba(177,145,87,0.18)] bg-[rgba(177,145,87,0.07)] px-2.5 py-1 text-[11px] text-[#dbc189]">{post.category}</span>
-                        <h3 className="text-lg font-semibold text-stone-100">{post.title}</h3>
-                      </div>
-                      <p className="line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-[#c0c6bc]">
-                        {post.summary || fallbackSummary(post.category, post.title)}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-[#a0a89e]">
-                        <span>作者：{post.author}</span>
-                        <span>{post.commentCount} 条评论</span>
-                      </div>
-                    </div>
-                  </Link>
-                  <div className="flex flex-col items-end gap-2">
+              <article key={post.id} className="mb-3 break-inside-avoid sm:mb-4 xl:mb-5">
+                <div className="surface-card rounded-[18px] border border-[rgba(118,137,129,0.12)] bg-[rgba(22,29,28,0.86)] p-3 sm:rounded-[20px] sm:p-4 transition hover:border-[rgba(177,145,87,0.16)] hover:bg-[rgba(27,33,32,0.98)]">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="inline-flex rounded-full border border-[rgba(177,145,87,0.18)] bg-[rgba(177,145,87,0.07)] px-2.5 py-1 text-[11px] text-[#dbc189]">
+                      {post.category}
+                    </span>
                     {currentUser &&
                     (currentUser.role === "OWNER" ||
                       currentUser.role === "ADMIN" ||
                       currentUser.id === post.authorId) ? (
-                      <DeletePostButton postId={post.id} />
+                      <div className="shrink-0">
+                        <DeletePostButton postId={post.id} />
+                      </div>
                     ) : null}
                   </div>
+
+                  <Link href={`/community/${post.id}`} className="mt-3 block space-y-3">
+                    <h3 className="text-[15px] font-semibold leading-6 text-stone-100 transition hover:text-[#e2cca0] sm:text-[17px] sm:leading-7">
+                      {post.title}
+                    </h3>
+                    <p className="text-[13px] leading-6 text-[#c0c6bc] sm:text-sm sm:leading-7">
+                      {post.summary || fallbackSummary(post.category, post.title)}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-[rgba(118,137,129,0.12)] pt-3 text-xs text-[#97a096] sm:text-sm">
+                      <span>{post.author}</span>
+                      <span>{post.createdAtLabel}</span>
+                      <span>{post.commentCount} 条评论</span>
+                    </div>
+                  </Link>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         )}

@@ -47,7 +47,7 @@ export default function CommentForm({ postId }: { postId: string }) {
       if (!response.ok || data?.success === false) {
         setNotice({
           type: "error",
-          text: data?.message ?? "è¯„è®ºå¤±è´¥ï¼Œè¯·ç¨åé‡è¯•ã€‚",
+          text: data?.message ?? "ÆÀÂÛÊ§°Ü£¬ÇëÉÔºóÖØÊÔ¡£",
         });
         return;
       }
@@ -55,13 +55,13 @@ export default function CommentForm({ postId }: { postId: string }) {
       setContent("");
       setNotice({
         type: "success",
-        text: data?.message ?? "è¯„è®ºæˆåŠŸ",
+        text: data?.message ?? "ÆÀÂÛ³É¹¦¡£",
       });
       router.refresh();
     } catch {
       setNotice({
         type: "error",
-        text: "è¯„è®ºå¤±è´¥ï¼Œè¯·æ£€æŸ¥ç½‘ç»œåé‡è¯•ã€‚",
+        text: "ÆÀÂÛÊ§°Ü£¬Çë¼ì²éÍøÂçºóÖØÊÔ¡£",
       });
     } finally {
       setIsSubmitting(false);
@@ -69,7 +69,7 @@ export default function CommentForm({ postId }: { postId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-3">
       {notice ? (
         <div
           className={
@@ -82,19 +82,16 @@ export default function CommentForm({ postId }: { postId: string }) {
         </div>
       ) : null}
 
-      <div className="space-y-2">
-        <label
-          htmlFor="comment-content"
-          className="text-sm font-medium text-zinc-200"
-        >
-          å‘è¡¨è¯„è®º
+      <div className="space-y-1">
+        <label htmlFor="comment-content" className="text-sm font-medium text-zinc-200">
+          ·¢±íÆÀÂÛ
         </label>
         <textarea
           id="comment-content"
           value={content}
           onChange={(event) => setContent(event.target.value)}
-          className="min-h-[120px] w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-zinc-600"
-          placeholder="å†™ä¸‹ä½ çš„çœ‹æ³•"
+          className="min-h-[92px] w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm leading-6 text-zinc-100 outline-none transition focus:border-zinc-600 sm:min-h-[110px]"
+          placeholder="Ğ´ÏÂÄãµÄ¿´·¨"
         />
       </div>
 
@@ -102,9 +99,9 @@ export default function CommentForm({ postId }: { postId: string }) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex items-center rounded-xl bg-zinc-100 px-5 py-3 text-sm font-medium text-zinc-950 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center rounded-xl bg-zinc-100 px-4 py-2.5 text-sm font-medium text-zinc-950 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? "æäº¤ä¸­..." : "å‘å¸ƒè¯„è®º"}
+          {isSubmitting ? "Ìá½»ÖĞ..." : "·¢±íÆÀÂÛ"}
         </button>
       </div>
     </form>

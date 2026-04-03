@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 
 type RawSearchParams = Promise<{
   q?: string | string[];
-  category?: string | string[];
 }>;
 
 function pickFirst(value?: string | string[]) {
@@ -17,7 +16,6 @@ async function resolveSearchParams(searchParams?: RawSearchParams) {
 
   return {
     q: pickFirst(resolved?.q).trim(),
-    category: pickFirst(resolved?.category).trim(),
   };
 }
 
@@ -299,10 +297,9 @@ function matchLevel(
 }
 
 export default async function WorldPage({ searchParams }: { searchParams?: RawSearchParams }) {
-  const { q, category } = await resolveSearchParams(searchParams);
+  const { q } = await resolveSearchParams(searchParams);
 
   const where = {
-    ...(category ? { category } : {}),
     ...(q
       ? {
           OR: [
@@ -331,30 +328,26 @@ export default async function WorldPage({ searchParams }: { searchParams?: RawSe
       : {}),
   };
 
-  const [allEntries, entries] = await Promise.all([
-    prisma.loreEntry.findMany({ select: { category: true }, orderBy: { category: "asc" } }),
-    prisma.loreEntry.findMany({
-      where,
-      select: {
-        id: true,
-        slug: true,
-        title: true,
-        summary: true,
-        content: true,
-        category: true,
-        metas: {
-          select: {
-            key: true,
-            value: true,
-          },
+  const entries = await prisma.loreEntry.findMany({
+    where,
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      summary: true,
+      content: true,
+      category: true,
+      metas: {
+        select: {
+          key: true,
+          value: true,
         },
-        updatedAt: true,
       },
-      orderBy: { updatedAt: "desc" },
-    }),
-  ]);
+      updatedAt: true,
+    },
+    orderBy: { updatedAt: "desc" },
+  });
 
-  const categories = Array.from(new Set(allEntries.map((entry) => entry.category).filter(Boolean)));
   const sortedEntries = q
     ? [...entries].sort((left, right) => {
         const matchDelta = matchLevel(left, q) - matchLevel(right, q);
@@ -378,44 +371,24 @@ export default async function WorldPage({ searchParams }: { searchParams?: RawSe
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      <section className="surface-panel rounded-[24px] px-5 py-5 sm:px-6 sm:py-5.5">
-        <div className="space-y-2.5">
-          <p className="text-xs section-kicker">Lore Archive</p>
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight text-stone-100 sm:text-3xl">世界观资料库</h1>
-            <p className="max-w-2xl text-sm leading-6 text-[#c0c7bc]">按关键词和分类快速查找词条，首屏先看到结果，再进入详情页继续阅读。</p>
-          </div>
-        </div>
-      </section>
-
       <section className="surface-card rounded-[22px] p-4 sm:p-4.5">
-        <form className="grid gap-4 md:grid-cols-[minmax(0,1fr),220px,auto]">
-          <div className="space-y-2">
-            <label htmlFor="world-search" className="text-sm font-medium text-[#e1dfd3]">关键词搜索</label>
+        <form className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="min-w-0 flex-1">
+            <label htmlFor="world-search" className="sr-only">搜索词条</label>
             <input id="world-search" name="q" type="search" defaultValue={q} placeholder="搜索标题、摘要或正文" className="w-full" />
           </div>
-          <div className="space-y-2">
-            <label htmlFor="world-category" className="text-sm font-medium text-[#e1dfd3]">分类筛选</label>
-            <select id="world-category" name="category" defaultValue={category} className="w-full">
-              <option value="">全部分类</option>
-              {categories.map((item) => <option key={item} value={item}>{getLoreCategoryLabel(item)}</option>)}
-            </select>
-          </div>
-          <div className="flex items-end gap-3">
-            <button type="submit" className="inline-flex items-center rounded-full bg-[rgba(177,145,87,0.92)] px-4 py-2.5 text-sm font-medium text-[#171208] transition hover:bg-[#dbc189]">开始筛选</button>
-            <Link href="/world" className="inline-flex items-center rounded-full border border-[rgba(126,165,154,0.22)] bg-[rgba(126,165,154,0.08)] px-4 py-2.5 text-sm font-medium text-[#d3dbd7] transition hover:border-[rgba(177,145,87,0.22)] hover:text-white">清空</Link>
-          </div>
+          <button type="submit" className="inline-flex items-center justify-center rounded-full bg-[rgba(177,145,87,0.92)] px-4 py-2.5 text-sm font-medium text-[#171208] transition hover:bg-[#dbc189] sm:shrink-0">搜索</button>
         </form>
       </section>
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-stone-100">词条列表</h2>
-          <p className="text-sm text-[#a6afa5]">共找到 {entries.length} 条结果</p>
+          <p className="text-sm text-[#a6afa5]">共找到 {sortedEntries.length} 条结果</p>
         </div>
 
-        {entries.length === 0 ? (
-          <div className="surface-card rounded-[22px] px-6 py-14 text-center text-sm text-[#adb4aa]">没有找到符合当前搜索或筛选条件的词条，请尝试更换关键词或分类。</div>
+        {sortedEntries.length === 0 ? (
+          <div className="surface-card rounded-[22px] px-6 py-14 text-center text-sm text-[#adb4aa]">{q ? "没有找到匹配的词条，换个关键词试试。" : "当前还没有可显示的词条。"}</div>
         ) : (
           <div className="grid gap-3.5 md:grid-cols-2 xl:grid-cols-3">
             {sortedEntries.map((entry) => {

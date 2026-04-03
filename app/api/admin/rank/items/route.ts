@@ -1,9 +1,23 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
+import { UserRole } from "@prisma/client";
 
+import { getCurrentUser } from "@/lib/auth/current-user";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
+    const user = await getCurrentUser();
+
+    if (!user || (user.role !== UserRole.OWNER && user.role !== UserRole.ADMIN)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "你没有新增战力榜榜项的权限。",
+        },
+        { status: 403 }
+      );
+    }
+
     const body = (await request.json()) as {
       boardId?: string;
       title?: string;

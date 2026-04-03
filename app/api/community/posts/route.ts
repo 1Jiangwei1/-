@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 
 import { getCurrentUser } from "@/lib/auth/current-user";
 import {
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "发布成功",
+      message: "发帖成功。",
       postId: post.id,
     });
   } catch (error) {
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
         message:
           error instanceof Error && error.message
             ? error.message
-            : "发布失败，请稍后重试。",
+            : "发帖失败，请稍后重试。",
       },
       { status: 500 }
     );

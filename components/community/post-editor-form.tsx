@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -56,14 +56,14 @@ export default function PostEditorForm() {
       if (!response.ok || data?.success === false) {
         setNotice({
           type: "error",
-          text: data?.message ?? "发布失败，请稍后重试。",
+          text: data?.message ?? "发帖失败，请稍后重试。",
         });
         return;
       }
 
       setNotice({
         type: "success",
-        text: data?.message ?? "发布成功",
+        text: data?.message ?? "发帖成功。",
       });
 
       if (data?.postId) {
@@ -74,7 +74,7 @@ export default function PostEditorForm() {
     } catch {
       setNotice({
         type: "error",
-        text: "发布失败，请检查网络后重试。",
+        text: "发帖失败，请检查网络后重试。",
       });
     } finally {
       setIsSubmitting(false);
@@ -82,7 +82,7 @@ export default function PostEditorForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
       {notice ? (
         <div
           className={
@@ -95,7 +95,7 @@ export default function PostEditorForm() {
         </div>
       ) : null}
 
-      <div className="space-y-2">
+      <div className="space-y-1.5">
         <label htmlFor="post-title" className="text-sm font-medium text-zinc-200">
           标题
         </label>
@@ -103,16 +103,13 @@ export default function PostEditorForm() {
           id="post-title"
           value={title}
           onChange={(event) => setTitle(event.target.value)}
-          className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-zinc-600"
+          className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-2.5 text-sm text-zinc-100 outline-none transition focus:border-zinc-600"
           placeholder="请输入帖子标题"
         />
       </div>
 
-      <div className="space-y-2">
-        <label
-          htmlFor="post-category"
-          className="text-sm font-medium text-zinc-200"
-        >
+      <div className="hidden">
+        <label htmlFor="post-category" className="text-sm font-medium text-zinc-200">
           分类
         </label>
         <select
@@ -129,18 +126,15 @@ export default function PostEditorForm() {
         </select>
       </div>
 
-      <div className="space-y-2">
-        <label
-          htmlFor="post-content"
-          className="text-sm font-medium text-zinc-200"
-        >
+      <div className="space-y-1.5">
+        <label htmlFor="post-content" className="text-sm font-medium text-zinc-200">
           正文
         </label>
         <textarea
           id="post-content"
           value={content}
           onChange={(event) => setContent(event.target.value)}
-          className="min-h-[260px] w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-100 outline-none transition focus:border-zinc-600"
+          className="min-h-[220px] w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm leading-6 text-zinc-100 outline-none transition focus:border-zinc-600 sm:min-h-[260px]"
           placeholder="写下你的讨论内容"
         />
       </div>
@@ -149,7 +143,7 @@ export default function PostEditorForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex items-center rounded-xl bg-zinc-100 px-5 py-3 text-sm font-medium text-zinc-950 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex items-center rounded-xl bg-zinc-100 px-4 py-2.5 text-sm font-medium text-zinc-950 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? "发布中..." : "发布帖子"}
         </button>

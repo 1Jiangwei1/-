@@ -20,31 +20,33 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 
   return (
     <html lang="zh-CN">
-      <body>
+      <body className="overflow-x-hidden">
         {user ? <ActivityBeacon /> : null}
         <div className="min-h-screen">
           <header className="sticky top-0 z-40 border-b border-[rgba(118,137,129,0.14)] bg-[rgba(17,23,22,0.82)] backdrop-blur-xl">
             <div className="container-mobile">
               <div className="flex flex-col gap-4 py-4">
-                <div className="flex items-center justify-between gap-4">
-                  <Link href="/" className="flex items-center gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <Link href="/" className="flex min-w-0 items-center gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[rgba(177,145,87,0.18)] bg-[rgba(177,145,87,0.08)] text-sm font-semibold text-[#dcc58f]">
                       玄鉴
                     </div>
-                    <div className="space-y-1">
+                    <div className="min-w-0 space-y-1">
                       <p className="text-xs section-kicker">Xuanjian Archive</p>
                       <p className="text-base font-semibold text-stone-100">玄鉴仙族社区</p>
                     </div>
                   </Link>
-                  <UserNav user={user ? { username: user.username } : null} />
+                  <div className="w-full sm:w-auto">
+                    <UserNav user={user ? { username: user.username } : null} />
+                  </div>
                 </div>
 
-                <nav className="flex gap-2 overflow-x-auto pb-1 text-sm whitespace-nowrap">
+                <nav className="flex gap-2 overflow-x-auto pb-1 text-sm whitespace-nowrap [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                   {NAV_ITEMS.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className="rounded-full border border-[rgba(118,137,129,0.16)] bg-[rgba(24,30,29,0.7)] px-4 py-2 text-[#cfd4ca] transition hover:border-[rgba(177,145,87,0.18)] hover:bg-[rgba(29,35,34,0.82)] hover:text-white"
+                      className="shrink-0 rounded-full border border-[rgba(118,137,129,0.16)] bg-[rgba(24,30,29,0.7)] px-4 py-2 text-[#cfd4ca] transition hover:border-[rgba(177,145,87,0.18)] hover:bg-[rgba(29,35,34,0.82)] hover:text-white"
                     >
                       {item.label}
                     </Link>

@@ -1,6 +1,35 @@
-﻿import Link from "next/link";
+﻿import { UserRole } from "@prisma/client";
 
-export default function HomePage() {
+import HomeBriefingCard from "@/components/home/home-briefing-card";
+import { getCurrentUser } from "@/lib/auth/current-user";
+import { canEditHomeBriefing } from "@/lib/home-briefing/permission";
+import { prisma } from "@/lib/prisma";
+
+function formatDate(date: Date) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+const DEFAULT_BRIEFING = {
+  title: "玄鉴快报",
+  content: "这里将用于发布最新剧情走向与阶段快报，等待首次正式更新。",
+};
+
+export default async function HomePage() {
+  const user = await getCurrentUser();
+  const [existingBriefing, canEdit] = await Promise.all([
+    prisma.homeBriefing.findUnique({
+      where: { slot: "home" },
+    }),
+    canEditHomeBriefing(user?.id ?? null),
+  ]);
+
+  const briefing = existingBriefing ?? DEFAULT_BRIEFING;
+  const updatedAtLabel = existingBriefing ? formatDate(existingBriefing.updatedAt) : "尚未发布";
+
   return (
     <div className="space-y-8 sm:space-y-10">
       <section className="surface-panel rounded-[32px] px-5 py-8 sm:px-7 sm:py-10">
@@ -14,26 +43,13 @@ export default function HomePage() {
               聚合世界观资料、讨论互动与人物战力排行，围绕玄鉴仙族的设定与剧情持续沉淀内容。
             </p>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/world"
-              className="inline-flex items-center rounded-full border border-[rgba(126,165,154,0.22)] bg-[rgba(126,165,154,0.08)] px-5 py-2.5 text-sm font-medium text-[#d3dbd7] transition hover:border-[rgba(177,145,87,0.22)] hover:text-white"
-            >
-              进入世界观
-            </Link>
-            <Link
-              href="/community"
-              className="inline-flex items-center rounded-full bg-[rgba(177,145,87,0.92)] px-5 py-2.5 text-sm font-medium text-[#171208] transition hover:bg-[#dbc189]"
-            >
-              进入讨论区
-            </Link>
-            <Link
-              href="/rank"
-              className="inline-flex items-center rounded-full border border-[rgba(126,165,154,0.22)] bg-[rgba(126,165,154,0.08)] px-5 py-2.5 text-sm font-medium text-[#d3dbd7] transition hover:border-[rgba(177,145,87,0.22)] hover:text-white"
-            >
-              进入战力榜
-            </Link>
-          </div>
+          <HomeBriefingCard
+            title={briefing.title}
+            content={briefing.content}
+            updatedAtLabel={updatedAtLabel}
+            canEdit={canEdit}
+            canManageEditors={user?.role === UserRole.OWNER}
+          />
         </div>
       </section>
     </div>

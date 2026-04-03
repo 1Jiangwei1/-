@@ -103,3 +103,11 @@ textarea::placeholder {
 .text-accent {
   color: var(--gold-soft);
 }
+
+.rank-name {
+  font-family: "Baskerville Old Face", "Palatino Linotype", "Book Antiqua", "Noto Serif SC", "Songti SC", "STSong", "KaiTi", serif;
+  letter-spacing: 0.04em;
+  text-shadow:
+    0 1px 8px rgba(220, 214, 188, 0.1),
+    0 0 18px rgba(192, 206, 194, 0.06);
+}
