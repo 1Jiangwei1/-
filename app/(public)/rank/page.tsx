@@ -38,37 +38,27 @@ export default async function RankPage() {
   const items = board?.items ?? [];
 
   return (
-    <div className="space-y-6 sm:space-y-8">
-      <section className="surface-panel rounded-[24px] px-4 py-4 sm:px-5 sm:py-4.5">
-        <div className="flex items-center justify-between gap-3">
-          <div className="space-y-1">
-            <p className="text-[11px] section-kicker">Ranking Board</p>
-            <h1 className="text-xl font-semibold tracking-tight text-stone-100 sm:text-2xl">
-              战力榜
-            </h1>
-          </div>
-          {canManageRank ? (
-            <Link
-              href="/admin/rank"
-              className="inline-flex shrink-0 items-center rounded-full border border-[rgba(177,145,87,0.22)] bg-[rgba(177,145,87,0.08)] px-4 py-2 text-sm font-medium text-[#e8d5a3] transition hover:bg-[rgba(177,145,87,0.14)]"
-            >
-              添加角色
-            </Link>
-          ) : null}
-        </div>
-      </section>
-
+    <div>
       <section className="surface-card rounded-[26px] p-5 sm:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1.5">
-            <p className="text-xs section-kicker">Current Board</p>
-            <h2 className="text-xl font-semibold text-stone-100">
+            <h1 className="text-xl font-semibold text-stone-100">
               {definition.title}
-            </h2>
+            </h1>
           </div>
-          <span className="inline-flex rounded-full accent-chip px-2.5 py-1 text-[11px]">
-            {items.length > 0 ? `${items.length} 位上榜人物` : "暂无数据"}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex rounded-full accent-chip px-2.5 py-1 text-[11px]">
+              {items.length > 0 ? `${items.length} 位上榜人物` : "暂无数据"}
+            </span>
+            {canManageRank ? (
+              <Link
+                href="/admin/rank"
+                className="inline-flex shrink-0 items-center rounded-full border border-[rgba(177,145,87,0.22)] bg-[rgba(177,145,87,0.08)] px-3 py-1.5 text-xs font-medium text-[#e8d5a3] transition hover:bg-[rgba(177,145,87,0.14)]"
+              >
+                添加角色
+              </Link>
+            ) : null}
+          </div>
         </div>
 
         {items.length === 0 ? (

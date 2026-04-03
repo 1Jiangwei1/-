@@ -27,10 +27,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               <div className="flex flex-col gap-3 py-4">
                 <div className="flex items-start justify-between gap-3">
                   <Link href="/" className="min-w-0 flex-1 pr-2">
-                    <div className="min-w-0 space-y-1">
-                      <p className="text-xs section-kicker">Xuanjian Archive</p>
-                      <p className="truncate text-base font-semibold text-stone-100 sm:text-[1.05rem]">
-                        玄鉴仙族社区
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-semibold leading-[1.05] text-stone-100 sm:text-[1.02rem]">
+                        <span className="block">玄鉴仙族</span>
+                        <span className="mt-1 block">社区</span>
                       </p>
                     </div>
                   </Link>

@@ -31,16 +31,12 @@ export default async function HomePage() {
   const updatedAtLabel = existingBriefing ? formatDate(existingBriefing.updatedAt) : "尚未发布";
 
   return (
-    <div>
-      <section className="surface-panel rounded-[32px] px-5 py-6 sm:px-7 sm:py-7">
-        <HomeBriefingCard
-          title={briefing.title}
-          content={briefing.content}
-          updatedAtLabel={updatedAtLabel}
-          canEdit={canEdit}
-          canManageEditors={user?.role === UserRole.OWNER}
-        />
-      </section>
-    </div>
+    <HomeBriefingCard
+      title={briefing.title}
+      content={briefing.content}
+      updatedAtLabel={updatedAtLabel}
+      canEdit={canEdit}
+      canManageEditors={user?.role === UserRole.OWNER}
+    />
   );
 }
